@@ -1,0 +1,14 @@
+
+{
+  "tagline": "Your AI-powered career assistant for graduates",
+  "try_guest": "Try as Guest",
+  "sign_out": "Sign Out",
+  "bookmarks": "Bookmarks",
+  "searching_jobs": "Searching jobs and analyzing fit...",
+  "top_job_matches": "Top Job Matches:",
+  "ai_suggests": "AI Suggests:",
+  "resume_feedback": "Resume Feedback",
+  "error_fetching": "Error fetching jobs or AI response.",
+  "error_analyzing": "Error analyzing resume.",
+  "analyzing_resume": "Analyzing resume for improvements..."
+}

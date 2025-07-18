@@ -1,19 +1,13 @@
-// MVP with i18n Initialized – FirstJob.ai
-// Includes i18next config and language resources
+// MVP with i18n and Firebase – Plain HTML (No extra UI dependencies)
 
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
-import en from '../locales/en.json';
-import es from '../locales/es.json';
-import hr from '../locales/hr.json';
+import en from './locales/en.json';
+import es from './locales/es.json';
+import hr from './locales/hr.json';
 
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
-import { Textarea } from '@/components/ui/textarea';
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { initializeApp } from 'firebase/app';
 import { getAuth, signInAnonymously, signOut, onAuthStateChanged } from 'firebase/auth';
 
@@ -42,13 +36,6 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 
-const tips = [
-  "Customize every resume for the job you're applying to.",
-  "Use LinkedIn to connect with professionals in your desired field.",
-  "Don’t fear rejection—each interview is practice.",
-  "Mention real projects, even personal or school ones.",
-];
-
 export default function FirstJobAI() {
   const { t, i18n } = useTranslation();
   const [user, setUser] = useState(null);
@@ -60,7 +47,7 @@ export default function FirstJobAI() {
   const [signedIn, setSignedIn] = useState(false);
   const [bookmarks, setBookmarks] = useState(() => JSON.parse(localStorage.getItem('jobBookmarks')) || []);
 
-  const OPENAI_API_KEY = 'your-openai-api-key';
+  const OPENAI_API_KEY = import.meta.env.VITE_OPENAI_API_KEY;
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
@@ -86,7 +73,7 @@ export default function FirstJobAI() {
 
   const handleSearch = async () => {
     setLoading(true);
-    setAiResponse(t('searching_jobs'));
+    setAiResponse(t('searching_jobs') || 'Searching for jobs...');
     try {
       const response = await fetch(`https://remotive.io/api/remote-jobs?search=${encodeURIComponent(jobQuery)}`);
       const data = await response.json();
@@ -108,20 +95,23 @@ export default function FirstJobAI() {
         })
       });
       const result = await openaiResponse.json();
-      const resultText = `🔍 ${t('top_job_matches')}\n${jobList}\n\n🤖 ${t('ai_suggests')}\n${result.choices[0].message.content}`;
+      const resultText = `🔍 ${t('top_job_matches') || 'Top job matches'}\n${jobList}\n\n🤖 ${t('ai_suggests') || 'AI suggests:'}\n${result.choices[0].message.content}`;
       setAiResponse(resultText);
       setBookmarks([...bookmarks, { query: jobQuery, result: resultText, time: new Date().toISOString() }]);
     } catch (error) {
-      setAiResponse(t('error_fetching'));
+      setAiResponse(t('error_fetching') || 'Error fetching jobs or AI suggestions.');
     }
     setLoading(false);
   };
 
   const handleResumeReview = async () => {
     setLoading(true);
-    setAiResponse(t('analyzing_resume'));
+    setAiResponse(t('analyzing_resume') || 'Analyzing resume...');
     try {
-      const content = resumeInput || (await resumeFile.text());
+      let content = resumeInput;
+      if (!resumeInput && resumeFile) {
+        content = await resumeFile.text();
+      }
       const openaiResponse = await fetch('https://api.openai.com/v1/chat/completions', {
         method: 'POST',
         headers: {
@@ -137,45 +127,83 @@ export default function FirstJobAI() {
         })
       });
       const result = await openaiResponse.json();
-      setAiResponse(`✅ ${t('resume_feedback')}\n${result.choices[0].message.content}`);
+      setAiResponse(`✅ ${t('resume_feedback') || 'Resume feedback:'}\n${result.choices[0].message.content}`);
     } catch (error) {
-      setAiResponse(t('error_analyzing'));
+      setAiResponse(t('error_analyzing') || 'Error analyzing resume.');
     }
     setLoading(false);
   };
 
   return (
-    <div className="max-w-4xl mx-auto p-6 space-y-6">
-      <div className="flex justify-between items-center">
-        <h1 className="text-3xl font-bold">FirstJob.ai</h1>
-        <select onChange={(e) => handleLanguageChange(e.target.value)} className="border p-2 rounded">
+    <div style={{ maxWidth: "640px", margin: "0 auto", padding: "1.5rem" }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <h1 style={{ fontSize: "2rem", fontWeight: "bold" }}>FirstJob.ai</h1>
+        <select onChange={(e) => handleLanguageChange(e.target.value)}>
           <option value="en">English</option>
           <option value="es">Español</option>
           <option value="hr">Hrvatski</option>
         </select>
       </div>
 
-      <p className="text-gray-600 text-center">{t('tagline')}</p>
+      <p style={{ color: "#4B5563", textAlign: "center" }}>{t('tagline') || "Your career starts here!"}</p>
 
-      <div className="flex justify-between items-center">
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
         {signedIn ? (
           <>
-            <Button onClick={handleLogout}>{t('sign_out')}</Button>
-            <span className="text-sm text-gray-500">{t('bookmarks')}: {bookmarks.length}</span>
+            <button onClick={handleLogout}>{t('sign_out') || 'Sign out'}</button>
+            <span style={{ fontSize: "0.9rem", color: "#6B7280" }}>{t('bookmarks') || 'Bookmarks'}: {bookmarks.length}</span>
           </>
         ) : (
-          <Button onClick={handleGuestLogin}>{t('try_guest')}</Button>
+          <button onClick={handleGuestLogin}>{t('try_guest') || 'Try as Guest'}</button>
         )}
       </div>
 
-      {/* Tabs, Resume, Coaching, Bookmark and AI response UI here */}
+      <hr style={{ margin: "2rem 0" }} />
+
+      <div style={{ marginBottom: "1rem" }}>
+        <label>
+          {t('search_jobs') || 'Search for jobs:'}
+          <input
+            type="text"
+            value={jobQuery}
+            onChange={e => setJobQuery(e.target.value)}
+            style={{ marginLeft: "0.5rem", padding: "0.5rem" }}
+          />
+        </label>
+        <button onClick={handleSearch} disabled={loading} style={{ marginLeft: "1rem" }}>
+          {loading ? (t('loading') || 'Loading...') : (t('search') || 'Search')}
+        </button>
+      </div>
+
+      <div style={{ marginBottom: "1rem" }}>
+        <label>
+          {t('paste_resume') || 'Paste your resume:'}
+          <textarea
+            value={resumeInput}
+            onChange={e => setResumeInput(e.target.value)}
+            rows={6}
+            style={{ display: "block", width: "100%", marginTop: "0.5rem", padding: "0.5rem" }}
+            placeholder="Paste your resume text here..."
+          />
+        </label>
+        <div style={{ marginTop: "0.5rem" }}>
+          <input
+            type="file"
+            accept=".txt,.pdf,.doc,.docx"
+            onChange={e => setResumeFile(e.target.files[0])}
+          />
+        </div>
+        <button onClick={handleResumeReview} disabled={loading} style={{ marginTop: "0.5rem" }}>
+          {loading ? (t('analyzing') || 'Analyzing...') : (t('review_resume') || 'Review Resume')}
+        </button>
+      </div>
 
       {aiResponse && (
-        <Card className="bg-gray-50">
-          <CardContent className="pt-4 whitespace-pre-wrap font-mono">
+        <div style={{ background: "#F9FAFB", marginTop: "1.5rem", padding: "1rem", borderRadius: "0.5rem" }}>
+          <pre style={{ whiteSpace: "pre-wrap", fontFamily: "monospace" }}>
             {aiResponse}
-          </CardContent>
-        </Card>
+          </pre>
+        </div>
       )}
     </div>
   );

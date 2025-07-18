@@ -1,0 +1,14 @@
+
+{
+  "tagline": "Tu asistente profesional impulsado por IA para graduados",
+  "try_guest": "Probar como invitado",
+  "sign_out": "Cerrar sesión",
+  "bookmarks": "Marcadores",
+  "searching_jobs": "Buscando trabajos y analizando compatibilidad...",
+  "top_job_matches": "Mejores opciones de empleo:",
+  "ai_suggests": "La IA sugiere:",
+  "resume_feedback": "Comentarios sobre el currículum",
+  "error_fetching": "Error al obtener trabajos o respuesta de IA.",
+  "error_analyzing": "Error al analizar el currículum.",
+  "analyzing_resume": "Analizando el currículum para mejoras..."
+}

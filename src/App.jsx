@@ -1,25 +1,170 @@
-// ...same imports and Firebase/i18n setup as before...
+// src/App.jsx
 
-// Place this at the top of your component
+import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
+import i18n from 'i18next';
+import { initReactI18next } from 'react-i18next';
+import en from './locales/en.json';
+import es from './locales/es.json';
+import hr from './locales/hr.json';
+import de from './locales/de.json';
+import fr from './locales/fr.json';
+
+import { initializeApp } from 'firebase/app';
+import { getAuth, signInAnonymously, signOut, onAuthStateChanged } from 'firebase/auth';
+
+// 1. PALETTE DEFINITION
+const PALETTES = {
+  light: {
+    blue: "#3182ce",
+    green: "#38a169",
+    bg: "#f5f7fa",
+    panel: "#fff",
+    text: "#202342",
+    border: "#d4dde7",
+    lightBlue: "#e7f0fa",
+    lightGreen: "#e6f8ee",
+  },
+  dark: {
+    blue: "#63b3ed",
+    green: "#68d391",
+    bg: "#232339",
+    panel: "#2b2e45",
+    text: "#f1f5fb",
+    border: "#3e4c66",
+    lightBlue: "#233055",
+    lightGreen: "#213b2a",
+  },
+};
+
+// 2. i18n
+if (!i18n.isInitialized) {
+  i18n
+    .use(initReactI18next)
+    .init({
+      resources: { en: { translation: en }, es: { translation: es }, hr: { translation: hr }, de: { translation: de }, fr: { translation: fr } },
+      lng: 'en',
+      fallbackLng: 'en',
+      interpolation: { escapeValue: false },
+    });
+}
+
+// 3. FIREBASE
+const firebaseConfig = {
+  apiKey: "AIzaSyAw1US8m8FkkcI0ys9y6ZEl2_bfwpyYKgc",
+  authDomain: "first-job-d35d2.firebaseapp.com",
+  projectId: "first-job-d35d2",
+  storageBucket: "first-job-d35d2.firebasestorage.app",
+  messagingSenderId: "399344260470",
+  appId: "1:399344260470:web:d8b24f6f5feb7a5ba8d657",
+  measurementId: "G-5B4JCVD7PS"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+
+// 4. Section Title Style
 const SECTION_TITLE_STYLE = {
   fontWeight: 700,
-  fontSize: '1.3rem',
+  fontSize: '1.22rem',
   marginBottom: '.4rem',
   display: 'flex',
   alignItems: 'center',
   gap: 8
 };
 
+// 5. COMPONENT
 export default function FirstJobAI() {
-  // ...all your existing hooks and logic...
+  const { t, i18n } = useTranslation();
+  const [user, setUser] = useState(null);
+  const [jobQuery, setJobQuery] = useState('');
+  const [resumeInput, setResumeInput] = useState('');
+  const [resumeFile, setResumeFile] = useState(null);
+  const [aiResponse, setAiResponse] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [signedIn, setSignedIn] = useState(false);
+  const [bookmarks, setBookmarks] = useState(() => JSON.parse(localStorage.getItem('jobBookmarks')) || []);
+  const [darkMode, setDarkMode] = useState(false);
 
-  // Check for error in aiResponse (very basic detection)
+  // --- Dynamic palette
+  const palette = darkMode ? PALETTES.dark : PALETTES.light;
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      setUser(user);
+      setSignedIn(!!user);
+    });
+    return () => unsubscribe();
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem('jobBookmarks', JSON.stringify(bookmarks));
+  }, [bookmarks]);
+
+  // Auth
+  const handleGuestLogin = () => signInAnonymously(auth).then(() => {}).catch(console.error);
+  const handleLogout = () => signOut(auth);
+
+  // Theme
+  const handleToggleDark = () => setDarkMode(dm => !dm);
+
+  // Language
+  const handleLanguageChange = (lang) => i18n.changeLanguage(lang);
+
+  // Jobs Search (adjust with your backend API as needed)
+  const handleSearch = async () => {
+    setLoading(true);
+    setAiResponse(t('searching_jobs') || "Searching jobs...");
+    try {
+      // Example: Call your job API
+      const remotiveRes = await fetch(`/api/remotive?keywords=${encodeURIComponent(jobQuery)}`);
+      const remotiveData = await remotiveRes.json();
+      const remotiveJobs = remotiveData.jobs || [];
+      const topJobs = remotiveJobs.slice(0, 5);
+      setAiResponse(
+        topJobs.length
+          ? topJobs.map((job, idx) => `${idx + 1}. ${job.title} at ${job.company_name || "Unknown"} (${job.location || ""})`).join("\n")
+          : t('no_jobs_found') || "No jobs found."
+      );
+    } catch (error) {
+      setAiResponse(t('error_fetching') || "Error fetching jobs.");
+    }
+    setLoading(false);
+  };
+
+  // Resume Review
+  const handleResumeReview = async () => {
+    setLoading(true);
+    setAiResponse(t('analyzing_resume') || "Analyzing resume...");
+    try {
+      let content = resumeInput;
+      if (!resumeInput && resumeFile) content = await resumeFile.text();
+
+      const openaiResponse = await fetch('/api/openai', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          model: 'gpt-4',
+          messages: [
+            { role: 'system', content: 'You are a professional resume coach.' },
+            { role: 'user', content: `Please review this resume and suggest improvements:\n${content}` }
+          ]
+        })
+      });
+      const result = await openaiResponse.json();
+      setAiResponse(`✅ ${t('resume_feedback') || 'Resume feedback:'}\n${result.choices?.[0]?.message?.content || 'No response from AI.'}`);
+    } catch (error) {
+      setAiResponse(t('error_analyzing') || "Error analyzing resume.");
+    }
+    setLoading(false);
+  };
+
+  // Error block detection
   const isError = typeof aiResponse === 'string' && (
     aiResponse.toLowerCase().includes("error") || aiResponse.toLowerCase().includes("no jobs found")
   );
 
-  // (keep the rest of the function unchanged up to the return)
-
+  // RENDER
   return (
     <div style={{
       maxWidth: 720,

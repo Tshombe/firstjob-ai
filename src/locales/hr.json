@@ -1,14 +1,18 @@
-
 {
-  "tagline": "Vaš AI karijerni asistent za diplomanate",
+  "tagline": "Vaš AI asistent za karijeru za diplomce",
+  "search_jobs": "Pretraži poslove:",
+  "search": "Pretraži",
+  "search_placeholder": "npr. liječnik zagreb",
+  "loading": "Učitavanje...",
+  "review_resume": "Pregledaj životopis",
+  "resume_feedback": "Povratna informacija o životopisu:",
+  "paste_resume": "Zalijepite svoj životopis:",
+  "paste_resume_placeholder": "Zalijepite svoj životopis ovdje...",
+  "analyzing": "Analiziram...",
+  "analyzing_resume": "Analiziram životopis...",
+  "sign_out": "Odjava",
   "try_guest": "Isprobaj kao gost",
-  "sign_out": "Odjavi se",
-  "bookmarks": "Zabilješke",
-  "searching_jobs": "Pretražujem poslove i analiziram mogućnosti...",
-  "top_job_matches": "Najbolji poslovi:",
-  "ai_suggests": "AI predlaže:",
-  "resume_feedback": "Povratne informacije o životopisu",
-  "error_fetching": "Greška pri dohvaćanju poslova ili AI odgovora.",
-  "error_analyzing": "Greška pri analizi životopisa.",
-  "analyzing_resume": "Analiza životopisa za poboljšanja..."
+  "bookmarks": "Oznake",
+  "error_fetching": "Greška pri dohvaćanju poslova ili AI prijedloga.",
+  "error_analyzing": "Greška pri analizi životopisa."
 }

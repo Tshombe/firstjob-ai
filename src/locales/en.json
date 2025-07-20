@@ -1,14 +1,19 @@
 
 {
   "tagline": "Your AI-powered career assistant for graduates",
+  "search_jobs": "Search for jobs:",
+  "search": "Search",
+  "search_placeholder": "e.g. doctor zagreb",
+  "loading": "Loading...",
+  "review_resume": "Review Resume",
+  "resume_feedback": "Resume feedback:",
+  "paste_resume": "Paste your resume:",
+  "paste_resume_placeholder": "Paste your resume text here...",
+  "analyzing": "Analyzing...",
+  "analyzing_resume": "Analyzing resume...",
+  "sign_out": "Sign out",
   "try_guest": "Try as Guest",
-  "sign_out": "Sign Out",
   "bookmarks": "Bookmarks",
-  "searching_jobs": "Searching jobs and analyzing fit...",
-  "top_job_matches": "Top Job Matches:",
-  "ai_suggests": "AI Suggests:",
-  "resume_feedback": "Resume Feedback",
-  "error_fetching": "Error fetching jobs or AI response.",
-  "error_analyzing": "Error analyzing resume.",
-  "analyzing_resume": "Analyzing resume for improvements..."
+  "error_fetching": "Error fetching jobs or AI suggestions.",
+  "error_analyzing": "Error analyzing resume."
 }

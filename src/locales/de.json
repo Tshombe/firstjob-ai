@@ -1,0 +1,18 @@
+{
+  "tagline": "Ihr KI-gestützter Karriereassistent für Absolventen",
+  "search_jobs": "Jobs suchen:",
+  "search": "Suchen",
+  "search_placeholder": "z.B. Arzt zagreb",
+  "loading": "Wird geladen...",
+  "review_resume": "Lebenslauf überprüfen",
+  "resume_feedback": "Rückmeldung zum Lebenslauf:",
+  "paste_resume": "Lebenslauf einfügen:",
+  "paste_resume_placeholder": "Fügen Sie hier Ihren Lebenslauf ein...",
+  "analyzing": "Analysiere...",
+  "analyzing_resume": "Analysiere Lebenslauf...",
+  "sign_out": "Abmelden",
+  "try_guest": "Als Gast ausprobieren",
+  "bookmarks": "Lesezeichen",
+  "error_fetching": "Fehler beim Abrufen von Jobs oder KI-Vorschlägen.",
+  "error_analyzing": "Fehler bei der Analyse des Lebenslaufs."
+}

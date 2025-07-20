@@ -1,0 +1,18 @@
+{
+  "tagline": "Votre assistant de carrière alimenté par l'IA pour les diplômés",
+  "search_jobs": "Rechercher des emplois :",
+  "search": "Rechercher",
+  "search_placeholder": "ex: médecin zagreb",
+  "loading": "Chargement...",
+  "review_resume": "Analyser le CV",
+  "resume_feedback": "Commentaires sur le CV :",
+  "paste_resume": "Collez votre CV :",
+  "paste_resume_placeholder": "Collez votre CV ici...",
+  "analyzing": "Analyse en cours...",
+  "analyzing_resume": "Analyse du CV...",
+  "sign_out": "Déconnexion",
+  "try_guest": "Essayer comme invité",
+  "bookmarks": "Favoris",
+  "error_fetching": "Erreur lors de la récupération des emplois ou des suggestions d'IA.",
+  "error_analyzing": "Erreur lors de l'analyse du CV."
+}

@@ -1,14 +1,18 @@
-
 {
-  "tagline": "Tu asistente profesional impulsado por IA para graduados",
-  "try_guest": "Probar como invitado",
+  "tagline": "Tu asistente de carrera impulsado por IA para graduados",
+  "search_jobs": "Buscar empleos:",
+  "search": "Buscar",
+  "search_placeholder": "ej: médico zagreb",
+  "loading": "Cargando...",
+  "review_resume": "Revisar currículum",
+  "resume_feedback": "Comentarios del currículum:",
+  "paste_resume": "Pega tu currículum:",
+  "paste_resume_placeholder": "Pega tu currículum aquí...",
+  "analyzing": "Analizando...",
+  "analyzing_resume": "Analizando currículum...",
   "sign_out": "Cerrar sesión",
+  "try_guest": "Probar como invitado",
   "bookmarks": "Marcadores",
-  "searching_jobs": "Buscando trabajos y analizando compatibilidad...",
-  "top_job_matches": "Mejores opciones de empleo:",
-  "ai_suggests": "La IA sugiere:",
-  "resume_feedback": "Comentarios sobre el currículum",
-  "error_fetching": "Error al obtener trabajos o respuesta de IA.",
-  "error_analyzing": "Error al analizar el currículum.",
-  "analyzing_resume": "Analizando el currículum para mejoras..."
+  "error_fetching": "Error al obtener empleos o sugerencias de IA.",
+  "error_analyzing": "Error al analizar el currículum."
 }

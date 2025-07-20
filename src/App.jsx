@@ -1,4 +1,4 @@
-// MVP with i18n and Firebase – Plain HTML (No extra UI dependencies)
+// src/App.jsx
 
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -47,8 +47,6 @@ export default function FirstJobAI() {
   const [signedIn, setSignedIn] = useState(false);
   const [bookmarks, setBookmarks] = useState(() => JSON.parse(localStorage.getItem('jobBookmarks')) || []);
 
-  const OPENAI_API_KEY = import.meta.env.VITE_OPENAI_API_KEY;
-
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       setUser(user);
@@ -75,17 +73,16 @@ export default function FirstJobAI() {
     setLoading(true);
     setAiResponse(t('searching_jobs') || 'Searching for jobs...');
     try {
-      const response = await fetch(`https://remotive.io/api/remote-jobs?search=${encodeURIComponent(jobQuery)}`);
+      // Step 1: Call your backend API for Remotive search
+      const response = await fetch(`/api/remotive?search=${encodeURIComponent(jobQuery)}`);
       const data = await response.json();
-      const jobs = data.jobs.slice(0, 3);
+      const jobs = data.jobs?.slice(0, 3) || [];
       const jobList = jobs.map((job, index) => `#${index + 1}: ${job.title} at ${job.company_name} – ${job.candidate_required_location}`).join('\n');
 
-      const openaiResponse = await fetch('https://api.openai.com/v1/chat/completions', {
+      // Step 2: Call your backend API for OpenAI
+      const openaiResponse = await fetch('/api/openai', {
         method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${OPENAI_API_KEY}`,
-          'Content-Type': 'application/json'
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           model: 'gpt-4',
           messages: [
@@ -95,7 +92,7 @@ export default function FirstJobAI() {
         })
       });
       const result = await openaiResponse.json();
-      const resultText = `🔍 ${t('top_job_matches') || 'Top job matches'}\n${jobList}\n\n🤖 ${t('ai_suggests') || 'AI suggests:'}\n${result.choices[0].message.content}`;
+      const resultText = `🔍 ${t('top_job_matches') || 'Top job matches'}\n${jobList}\n\n🤖 ${t('ai_suggests') || 'AI suggests:'}\n${result.choices?.[0]?.message?.content || 'No response from AI.'}`;
       setAiResponse(resultText);
       setBookmarks([...bookmarks, { query: jobQuery, result: resultText, time: new Date().toISOString() }]);
     } catch (error) {
@@ -112,12 +109,11 @@ export default function FirstJobAI() {
       if (!resumeInput && resumeFile) {
         content = await resumeFile.text();
       }
-      const openaiResponse = await fetch('https://api.openai.com/v1/chat/completions', {
+
+      // Call your backend API for OpenAI
+      const openaiResponse = await fetch('/api/openai', {
         method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${OPENAI_API_KEY}`,
-          'Content-Type': 'application/json'
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           model: 'gpt-4',
           messages: [
@@ -127,7 +123,7 @@ export default function FirstJobAI() {
         })
       });
       const result = await openaiResponse.json();
-      setAiResponse(`✅ ${t('resume_feedback') || 'Resume feedback:'}\n${result.choices[0].message.content}`);
+      setAiResponse(`✅ ${t('resume_feedback') || 'Resume feedback:'}\n${result.choices?.[0]?.message?.content || 'No response from AI.'}`);
     } catch (error) {
       setAiResponse(t('error_analyzing') || 'Error analyzing resume.');
     }

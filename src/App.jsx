@@ -69,37 +69,43 @@ export default function FirstJobAI() {
     i18n.changeLanguage(lang);
   };
 
-  const handleSearch = async () => {
-    setLoading(true);
-    setAiResponse(t('searching_jobs') || 'Searching for jobs...');
-    try {
-      // Step 1: Call your backend API for Remotive search
-      const response = await fetch(`/api/remotive?search=${encodeURIComponent(jobQuery)}`);
-      const data = await response.json();
-      const jobs = data.jobs?.slice(0, 3) || [];
-      const jobList = jobs.map((job, index) => `#${index + 1}: ${job.title} at ${job.company_name} – ${job.candidate_required_location}`).join('\n');
+const handleSearch = async () => {
+  setLoading(true);
+  setAiResponse("Searching jobs on multiple sources...");
 
-      // Step 2: Call your backend API for OpenAI
-      const openaiResponse = await fetch('/api/openai', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          model: 'gpt-4',
-          messages: [
-            { role: 'system', content: 'You are a helpful career assistant.' },
-            { role: 'user', content: `Here are some job options:\n${jobList}.\nWhich is best for someone with no experience but strong coding skills?` }
-          ]
-        })
-      });
-      const result = await openaiResponse.json();
-      const resultText = `🔍 ${t('top_job_matches') || 'Top job matches'}\n${jobList}\n\n🤖 ${t('ai_suggests') || 'AI suggests:'}\n${result.choices?.[0]?.message?.content || 'No response from AI.'}`;
-      setAiResponse(resultText);
-      setBookmarks([...bookmarks, { query: jobQuery, result: resultText, time: new Date().toISOString() }]);
-    } catch (error) {
-      setAiResponse(t('error_fetching') || 'Error fetching jobs or AI suggestions.');
-    }
-    setLoading(false);
-  };
+  try {
+    // 1. Call Remotive (GET)
+    const remotiveRes = await fetch(`/api/remotive?keywords=${encodeURIComponent(jobQuery)}`);
+    const remotiveData = await remotiveRes.json();
+    const remotiveJobs = remotiveData.jobs || [];
+
+    // 2. Call Jooble (POST)
+    const joobleRes = await fetch("/api/jooble", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ keywords: jobQuery, location: "Croatia" }),
+    });
+    const joobleData = await joobleRes.json();
+    const joobleJobs = joobleData.jobs || [];
+
+    // 3. Merge jobs
+    const jobs = [...remotiveJobs, ...joobleJobs];
+
+    // 4. (Optional) Limit to top N jobs
+    const topJobs = jobs.slice(0, 5);
+
+    // 5. (Optional) Use OpenAI for suggestions based on merged jobs
+    // ...you can send 'topJobs' to OpenAI if you want further processing
+    setAiResponse(
+      topJobs.length
+        ? topJobs.map((job, idx) => `${idx + 1}. ${job.title} at ${job.company_name || job.company || "Unknown"} (${job.location || job.candidate_required_location || ""})`).join("\n")
+        : "No jobs found on Remotive or Jooble."
+    );
+  } catch (error) {
+    setAiResponse("Error fetching jobs from one or more sources.");
+  }
+  setLoading(false);
+};
 
   const handleResumeReview = async () => {
     setLoading(true);

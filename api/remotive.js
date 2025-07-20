@@ -1,19 +1,14 @@
-// api/remotive.js
-
 export default async function handler(req, res) {
-  if (req.method !== "GET") {
-    return res.status(405).json({ error: "Method not allowed" });
-  }
   const { search } = req.query;
-  if (!search) {
-    return res.status(400).json({ error: "Missing search parameter" });
-  }
+
   try {
-    const url = `https://remotive.io/api/remote-jobs?search=${encodeURIComponent(search)}`;
-    const apiRes = await fetch(url);
-    const data = await apiRes.json();
+    const apiUrl = `https://remotive.io/api/remote-jobs?search=${encodeURIComponent(search)}`;
+    const response = await fetch(apiUrl);
+    const data = await response.json();
+    res.setHeader("Access-Control-Allow-Origin", "*");
     res.status(200).json(data);
-  } catch (err) {
-    res.status(500).json({ error: "Failed to fetch Remotive jobs" });
+  } catch (error) {
+    console.error("Remotive API error:", error);
+    res.status(500).json({ error: error.message });
   }
 }

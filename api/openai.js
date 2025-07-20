@@ -1,7 +1,4 @@
-// api/openai.js
-
 export default async function handler(req, res) {
-  // Handle preflight CORS (for local dev, optional)
   if (req.method === "OPTIONS") {
     res.setHeader("Access-Control-Allow-Origin", "*");
     res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
@@ -17,8 +14,8 @@ export default async function handler(req, res) {
   try {
     const { messages, model } = req.body;
 
-    // Make sure OPENAI_API_KEY is defined
     if (!process.env.OPENAI_API_KEY) {
+      console.error("OpenAI API key not set!");
       return res.status(500).json({ error: "OpenAI API key not set on server." });
     }
 
@@ -34,9 +31,16 @@ export default async function handler(req, res) {
       }),
     });
 
+    if (!openaiRes.ok) {
+      const errorBody = await openaiRes.text();
+      console.error("OpenAI error:", errorBody);
+      return res.status(500).json({ error: "OpenAI API request failed", details: errorBody });
+    }
+
     const data = await openaiRes.json();
     return res.status(200).json(data);
   } catch (error) {
+    console.error("Server error:", error);
     return res.status(500).json({ error: error.message });
   }
 }
